@@ -517,6 +517,57 @@ app.get('/api/auth/verify', authenticateToken, async (req, res) => {
 
 // RUTAS DE EMERGENCIAS
 
+// Ruta para búsqueda de emergencias
+app.get('/api/emergencies/search', async (req, res) => {
+    try {
+        const { 
+            query,
+            tipo,
+            estado,
+            distrito,
+            prioridad,
+            limit = 20
+        } = req.query;
+
+        let filtros = {};
+
+        // Búsqueda por texto libre
+        if (query) {
+            filtros.$or = [
+                { descripcion: { $regex: query, $options: 'i' } },
+                { 'ubicacion.direccion': { $regex: query, $options: 'i' } },
+                { 'ubicacion.distrito': { $regex: query, $options: 'i' } },
+                { 'reportadoPor.nombre': { $regex: query, $options: 'i' } }
+            ];
+        }
+
+        // Filtros específicos
+        if (tipo) filtros.tipoEmergencia = tipo;
+        if (estado) filtros.estado = estado;
+        if (distrito) filtros['ubicacion.distrito'] = { $regex: distrito, $options: 'i' };
+        if (prioridad) filtros.prioridad = prioridad;
+
+        const emergencias = await Emergency.find(filtros)
+            .populate('reportadoPor.userId', 'username profile.nombre')
+            .populate('asignado.userId', 'username profile.nombre')
+            .sort({ timestamp: -1 })
+            .limit(parseInt(limit));
+
+        res.json({
+            success: true,
+            data: emergencias,
+            total: emergencias.length
+        });
+
+    } catch (error) {
+        console.error('Error en búsqueda:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error en la búsqueda'
+        });
+    }
+});
+
 // Crear emergencia (ciudadanos y anónimos)
 app.post('/api/emergencies', async (req, res) => {
     try {
