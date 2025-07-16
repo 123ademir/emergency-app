@@ -172,6 +172,55 @@
     </nav>
 
     <div class="container-fluid main-content">
+        <!-- BUSCADOR DE EMERGENCIAS -->
+        <div class="search-container" style="margin: 20px 0; padding: 20px; background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom: 20px; color: #1a1a2e;"><i class="fas fa-search"></i> Buscar Emergencias</h3>
+            
+            <div class="search-bar" style="margin-bottom: 20px;">
+                <input type="text" id="searchQuery" placeholder="Buscar emergencias..." 
+                       class="form-control" style="width: 300px; display: inline-block; margin-right: 10px;">
+                <button onclick="buscarEmergencias()" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <button onclick="limpiarBusqueda()" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+            
+            <div class="search-filters" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select id="tipoFilter" class="form-control" style="width: auto;">
+                    <option value="">Todos los tipos</option>
+                    <option value="asalto">Asalto</option>
+                    <option value="accidente">Accidente</option>
+                    <option value="medica">Médica</option>
+                    <option value="incendio">Incendio</option>
+                    <option value="violencia_domestica">Violencia Doméstica</option>
+                    <option value="robo">Robo</option>
+                    <option value="otra">Otra</option>
+                </select>
+                
+                <select id="estadoFilter" class="form-control" style="width: auto;">
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="asignado">Asignado</option>
+                    <option value="en_proceso">En Proceso</option>
+                    <option value="resuelto">Resuelto</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+                
+                <select id="prioridadFilter" class="form-control" style="width: auto;">
+                    <option value="">Todas las prioridades</option>
+                    <option value="baja">Baja</option>
+                    <option value="media">Media</option>
+                    <option value="alta">Alta</option>
+                    <option value="critica">Crítica</option>
+                </select>
+                
+                <input type="text" id="distritoFilter" placeholder="Distrito" class="form-control" style="width: 150px;">
+            </div>
+        </div>
+
+        <div id="searchResults" style="margin: 20px 0;"></div>
         <div id="alertContainer"></div>
         
         <!-- Estadísticas -->
