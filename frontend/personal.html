@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Personal - Sistema de Emergencias</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+        }
+        
+        .container-main {
+            padding: 20px;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .status-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin: 0 10px;
+        }
+        
+        .status-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .emergency-list {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .emergency-item {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .emergency-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .emergency-item.high-priority {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+        
+        .emergency-item.critical-priority {
+            border-left-color: #c0392b;
+            background: rgba(192, 57, 43, 0.1);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(192, 57, 43, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+        }
+        
+        .priority-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .priority-baja {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .priority-media {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .priority-alta {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .priority-critica {
+            background: #721c24;
+            color: white;
+        }
+        
+        .btn-assign {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-assign:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-complete {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-complete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+        }
+        
+        .role-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .role-policia {
+            background: #007bff;
+            color: white;
+        }
+        
+        .role-bombero {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .role-paramedico {
+            background: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shield-alt" style="color: #3498db;"></i>
+                <span style="color: #1a1a2e; font-weight: 700;">Panel de Personal</span>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <span class="role-badge" id="userRole">Personal</span>
+                    <span id="userName" style="color: #1a1a2e; margin-left: 10px;">Usuario</span>
+                </span>
+                <button class="btn logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-main">
+        <!-- Estado de Disponibilidad -->
+        <div class="status-card">
+            <h3><i class="fas fa-user-check"></i> Estado de Disponibilidad</h3>
+            <div class="d-flex align-items-center justify-content-center mt-3">
+                <span class="me-3">No Disponible</span>
+                <label class="status-toggle">
+                    <input type="checkbox" id="availabilityToggle" onchange="toggleAvailability()">
+                    <span class="slider"></span>
+                </label>
+                <span class="ms-3">Disponible</span>
+            </div>
+            <div class="mt-3">
+                <span id="statusText" class="badge bg-secondary">Estado: No Disponible</span>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalAssigned">0</div>
+                <div class="stat-label">Asignadas Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCompleted">0</div>
+                <div class="stat-label">Completadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="currentAssigned">0</div>
+                <div class="stat-label">Asignadas Activas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="responseTime">0</div>
+                <div class="stat-label">Tiempo Promedio (min)</div>
+            </div>
+        </div>
+
+        <!-- Lista de Emergencias -->
+        <div class="emergency-list">
+            <h3><i class="fas fa-exclamation-triangle"></i> Emergencias Disponibles</h3>
+            <div id="emergencyContainer">
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-search" style="font-size: 3rem; opacity: 0.3;"></i>
+                    <p>Cargando emergencias...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mis Emergencias Asignadas -->
+        <div class="emergency-list">
+            <h3><i class="fas fa-tasks"></i> Mis Emergencias Asignadas</h3>
+            <div id="myEmergencyContainer">
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-clipboard-list" style="font-size: 3rem; opacity: 0.3;"></i>
+                    <p>No tienes emergencias asignadas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para actualizar estado -->
+    <div class="modal fade" id="updateStatusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Actualizar Estado de Emergencia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateStatusForm">
+                        <input type="hidden" id="emergencyId">
+                        <div class="mb-3">
+                            <label class="form-label">Nuevo Estado</label>
+                            <select class="form-control" id="newStatus" required>
+                                <option value="">Seleccionar estado</option>
+                                <option value="en_proceso">En Proceso</option>
+                                <option value="resuelto">Resuelto</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" id="statusDescription" rows="3" 
+                                placeholder="Descripción del estado actual o resolución..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="updateEmergencyStatus()">Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUser = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || !['policia', 'bombero', 'paramedico'].includes(user.role)) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            currentUser = user;
+            
+            // Actualizar UI con información del usuario
+            document.getElementById('userName').textContent = user.profile?.nombre || 'Usuario';
+            
+            const roleElement = document.getElementById('userRole');
+            roleElement.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+            roleElement.className = `role-badge role-${user.role}`;
+            
+            // Configurar estado de disponibilidad
+            document.getElementById('availabilityToggle').checked = user.profile?.disponible || false;
+            updateAvailabilityStatus();
+            
+            // Cargar datos
+            loadEmergencies();
+            loadMyEmergencies();
+            loadStats();
+            
+            // Actualizar cada 30 segundos
+            setInterval(() => {
+                loadEmergencies();
+                loadMyEmergencies();
+                loadStats();
+            }, 30000);
+        });
+
+        async function toggleAvailability() {
+            const isAvailable = document.getElementById('availabilityToggle').checked;
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/users/availability', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        disponible: isAvailable,
+                        coordenadas: {
+                            latitud: 0, // Aquí se podría obtener la ubicación real
+                            longitud: 0
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    updateAvailabilityStatus();
+                    if (isAvailable) {
+                        loadEmergencies();
+                    }
+                } else {
+                    // Revertir el toggle si hay error
+                    document.getElementById('availabilityToggle').checked = !isAvailable;
+                }
+            } catch (error) {
+                console.error('Error actualizando disponibilidad:', error);
+                document.getElementById('availabilityToggle').checked = !isAvailable;
+            }
+        }
+
+        function updateAvailabilityStatus() {
+            const isAvailable = document.getElementById('availabilityToggle').checked;
+            const statusText = document.getElementById('statusText');
+            
+            if (isAvailable) {
+                statusText.textContent = 'Estado: Disponible';
+                statusText.className = 'badge bg-success';
+            } else {
+                statusText.textContent = 'Estado: No Disponible';
+                statusText.className = 'badge bg-secondary';
+            }
+        }
+
+        async function loadEmergencies() {
+            const isAvailable = document.getElementById('availabilityToggle').checked;
+            
+            if (!isAvailable) {
+                document.getElementById('emergencyContainer').innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-user-slash" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p>Debes estar disponible para ver emergencias</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/emergencies?estado=activo', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayEmergencies(data.data);
+                }
+            } catch (error) {
+                console.error('Error cargando emergencias:', error);
+            }
+        }
+
+        async function loadMyEmergencies() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/emergencies?estado=asignado&estado=en_proceso', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayMyEmergencies(data.data);
+                }
+            } catch (error) {
+                console.error('Error cargando mis emergencias:', error);
+            }
+        }
+
+        function displayEmergencies(emergencies) {
+            const container = document.getElementById('emergencyContainer');
+            
+            if (!emergencies || emergencies.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p>No hay emergencias disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const emergencyHtml = emergencies.map(emergency => {
+                const priorityClass = `priority-${emergency.prioridad}`;
+                const itemClass = emergency.prioridad === 'critica' ? 'emergency-item critical-priority' : 
+                                 emergency.prioridad === 'alta' ? 'emergency-item high-priority' : 
+                                 'emergency-item';
+                
+                return `
+                    <div class="${itemClass}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-2">
+                                    <h5 class="mb-0 me-3">${emergency.tipoEmergencia.toUpperCase()}</h5>
+                                    <span class="priority-badge ${priorityClass}">
+                                        ${emergency.prioridad}
+                                    </span>
+                                </div>
+                                <p class="mb-2">${emergency.descripcion}</p>
+                                <div class="row text-muted">
+                                    <div class="col-md-6">
+                                        <i class="fas fa-map-marker-alt"></i> 
+                                        ${emergency.ubicacion.direccion}, ${emergency.ubicacion.distrito}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <i class="fas fa-clock"></i> 
+                                        ${new Date(emergency.timestamp).toLocaleString()}
+                                    </div>
+                                </div>
+                                <div class="row text-muted mt-1">
+                                    <div class="col-md-6">
+                                        <i class="fas fa-user"></i> 
+                                        ${emergency.reportadoPor.nombre}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <i class="fas fa-phone"></i> 
+                                        ${emergency.reportadoPor.telefono || 'No disponible'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <button class="btn btn-assign" onclick="assignEmergency('${emergency._id}')">
+                                    <i class="fas fa-hand-paper"></i> Asignar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = emergencyHtml;
+        }
+
+        function displayMyEmergencies(emergencies) {
+            const container = document.getElementById('myEmergencyContainer');
+            
+            if (!emergencies || emergencies.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p>No tienes emergencias asignadas</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const emergencyHtml = emergencies.map(emergency => {
+                const priorityClass = `priority-${emergency.prioridad}`;
+                const itemClass = emergency.prioridad === 'critica' ? 'emergency-item critical-priority' : 
+                                 emergency.prioridad === 'alta' ? 'emergency-item high-priority' : 
+                                 'emergency-item';
+                
+                return `
+                    <div class="${itemClass}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-2">
+                                    <h5 class="mb-0 me-3">${emergency.tipoEmergencia.toUpperCase()}</h5>
+                                    <span class="priority-badge ${priorityClass}">
+                                        ${emergency.prioridad}
+                                    </span>
+                                    <span class="badge bg-info ms-2">
+                                        ${emergency.estado}
+                                    </span>
+                                </div>
+                                <p class="mb-2">${emergency.descripcion}</p>
+                                <div class="row text-muted">
+                                    <div class="col-md-6">
+                                        <i class="fas fa-map-marker-alt"></i> 
+                                        ${emergency.ubicacion.direccion}, ${emergency.ubicacion.distrito}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <i class="fas fa-clock"></i> 
+                                        Asignado: ${emergency.asignado?.tiempoAsignacion ? new Date(emergency.asignado.tiempoAsignacion).toLocaleString() : 'N/A'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <button class="btn btn-complete" onclick="showUpdateStatusModal('${emergency._id}')">
+                                    <i class="fas fa-edit"></i> Actualizar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = emergencyHtml;
+        }
+
+        async function assignEmergency(emergencyId) {
+            if (!confirm('¿Estás seguro de que deseas asignarte esta emergencia?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/emergencies/${emergencyId}/assign`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Emergencia asignada exitosamente');
+                    loadEmergencies();
+                    loadMyEmergencies();
+                    loadStats();
+                } else {
+                    alert('Error al asignar emergencia: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        }
+
+        function showUpdateStatusModal(emergencyId) {
+            document.getElementById('emergencyId').value = emergencyId;
+            const modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+            modal.show();
+        }
+
+        async function updateEmergencyStatus() {
+            const emergencyId = document.getElementById('emergencyId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const description = document.getElementById('statusDescription').value;
+
+            if (!newStatus) {
+                alert('Por favor selecciona un estado');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/emergencies/${emergencyId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        estado: newStatus,
+                        descripcion: description
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Estado actualizado exitosamente');
+                    bootstrap.Modal.getInstance(document.getElementById('updateStatusModal')).hide();
+                    document.getElementById('updateStatusForm').reset();
+                    loadMyEmergencies();
+                    loadStats();
+                } else {
+                    alert('Error al actualizar estado: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/emergencies?limit=100', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStats(data.data);
+                }
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+        function updateStats(emergencies) {
+            const userId = currentUser.id;
+            
+            // Filtrar emergencias del usuario actual
+            const userEmergencies = emergencies.filter(e => 
+                e.asignado && e.asignado.userId === userId
+            );
+            
+            const totalAssigned = userEmergencies.length;
+            const totalCompleted = userEmergencies.filter(e => e.estado === 'resuelto').length;
+            const currentAssigned = userEmergencies.filter(e => 
+                ['asignado', 'en_proceso'].includes(e.estado)
+            ).length;
+            
+            // Calcular tiempo promedio de respuesta
+            const completedWithTime = userEmergencies.filter(e => 
+                e.estado === 'resuelto' && e.tiempoRespuesta
+            );
+            const avgResponseTime = completedWithTime.length > 0 ? 
+                Math.round(completedWithTime.reduce((sum, e) => sum + e.tiempoRespuesta, 0) / completedWithTime.length / 60000) : 0;
+            
+            document.getElementById('totalAssigned').textContent = totalAssigned;
+            document.getElementById('totalCompleted').textContent = totalCompleted;
+            document.getElementById('currentAssigned').textContent = currentAssigned;
+            document.getElementById('responseTime').textContent = avgResponseTime;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

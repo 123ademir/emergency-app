@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador - Sistema de Emergencias</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(233, 69, 96, 0.2);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: #1a1a2e !important;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #e94560, #1a1a2e);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+            font-weight: 600;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #1a1a2e);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid #e94560;
+            color: #e94560;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: #e94560;
+            border-color: #e94560;
+            transform: translateY(-2px);
+        }
+        
+        .table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+        }
+        
+        .table th {
+            background: rgba(233, 69, 96, 0.1);
+            color: #1a1a2e;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .badge {
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-weight: 600;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #e94560, #1a1a2e);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.15);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .tab-pane {
+            padding: 20px 0;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #1a1a2e;
+            font-weight: 600;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: #e94560;
+            border-color: #e94560;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fas fa-shield-alt"></i> Sistema de Emergencias - Admin</a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">Bienvenido, <strong id="adminName">Administrador</strong></span>
+                <button class="btn btn-outline-primary btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid main-content">
+        <div id="alertContainer"></div>
+        
+        <!-- Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalEmergencias">0</div>
+                    <div class="stat-label">Total Emergencias</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" id="emergenciasActivas">0</div>
+                    <div class="stat-label">Emergencias Activas</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" id="personalDisponible">0</div>
+                    <div class="stat-label">Personal Disponible</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" id="emergenciasHoy">0</div>
+                    <div class="stat-label">Emergencias Hoy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navegación por pestañas -->
+        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="emergencies-tab" data-bs-toggle="tab" data-bs-target="#emergencies" type="button">
+                    <i class="fas fa-exclamation-triangle"></i> Emergencias
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="personnel-tab" data-bs-toggle="tab" data-bs-target="#personnel" type="button">
+                    <i class="fas fa-users"></i> Personal
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button">
+                    <i class="fas fa-chart-bar"></i> Reportes
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="adminTabsContent">
+            <!-- Pestaña de Emergencias -->
+            <div class="tab-pane fade show active" id="emergencies" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Gestión de Emergencias</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tipo</th>
+                                        <th>Ubicación</th>
+                                        <th>Reportado por</th>
+                                        <th>Estado</th>
+                                        <th>Prioridad</th>
+                                        <th>Asignado a</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="emergenciesTableBody">
+                                    <!-- Se llenará con JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de Personal -->
+            <div class="tab-pane fade" id="personnel" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-users"></i> Gestión de Personal</h5>
+                        <button class="btn btn-light" onclick="showCreateUserModal()">
+                            <i class="fas fa-plus"></i> Crear Usuario
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Teléfono</th>
+                                        <th>Ubicación</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="personnelTableBody">
+                                    <!-- Se llenará con JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de Reportes -->
+            <div class="tab-pane fade" id="reports" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-bar"></i> Reportes y Estadísticas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Emergencias por Tipo</h6>
+                                <canvas id="emergencyTypeChart"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Tiempo de Respuesta Promedio</h6>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-clock"></i> 
+                                    <span id="avgResponseTime">Calculando...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear usuario -->
+    <div class="modal fade" id="createUserModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crear Nuevo Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createUserForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre de Usuario</label>
+                                    <input type="text" class="form-control" id="newUsername" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="newEmail" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Contraseña</label>
+                                    <input type="password" class="form-control" id="newPassword" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Rol</label>
+                                    <select class="form-control" id="newRole" required>
+                                        <option value="">Seleccionar rol</option>
+                                        <option value="policia">Policía</option>
+                                        <option value="bombero">Bombero</option>
+                                        <option value="paramedico">Paramédico</option>
+                                        <option value="administrador">Administrador</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre Completo</label>
+                                    <input type="text" class="form-control" id="newFullName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="newPhone" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Ciudad</label>
+                                    <input type="text" class="form-control" id="newCity" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Distrito</label>
+                                    <input type="text" class="form-control" id="newDistrict" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="professionalFields" style="display: none;">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Código/Badge</label>
+                                    <input type="text" class="form-control" id="newBadge">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Departamento</label>
+                                    <input type="text" class="form-control" id="newDepartment">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="createUser()">Crear Usuario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Verificar autenticación al cargar
+        window.addEventListener('load', async () => {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token || user.role !== 'administrador') {
+                window.location.href = '/';
+                return;
+            }
+            
+            document.getElementById('adminName').textContent = user.profile?.nombre || 'Administrador';
+            
+            // Cargar datos del dashboard
+            await loadDashboardData();
+            await loadEmergencies();
+            await loadPersonnel();
+        });
+
+        // Función para mostrar alertas
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Cargar datos del dashboard
+        async function loadDashboardData() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('totalEmergencias').textContent = data.data.totalEmergencias || 0;
+                    document.getElementById('emergenciasActivas').textContent = data.data.emergenciasActivas || 0;
+                    document.getElementById('personalDisponible').textContent = data.data.personalDisponible || 0;
+                    document.getElementById('emergenciasHoy').textContent = data.data.emergenciasHoy || 0;
+                }
+            } catch (error) {
+                console.error('Error cargando dashboard:', error);
+            }
+        }
+
+        // Cargar emergencias
+        async function loadEmergencies() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/emergencies', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const tbody = document.getElementById('emergenciesTableBody');
+                    tbody.innerHTML = '';
+                    
+                    data.data.forEach(emergency => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>#${emergency._id.slice(-6)}</td>
+                            <td><span class="badge bg-info">${emergency.tipoEmergencia}</span></td>
+                            <td>${emergency.ubicacion.direccion}, ${emergency.ubicacion.distrito}</td>
+                            <td>${emergency.reportadoPor.nombre}</td>
+                            <td><span class="badge bg-${getStatusColor(emergency.estado)}">${emergency.estado}</span></td>
+                            <td><span class="badge bg-${getPriorityColor(emergency.prioridad)}">${emergency.prioridad}</span></td>
+                            <td>${emergency.asignado?.nombre || 'Sin asignar'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewEmergency('${emergency._id}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error cargando emergencias:', error);
+            }
+        }
+
+        // Cargar personal
+        async function loadPersonnel() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/admin/personnel', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const tbody = document.getElementById('personnelTableBody');
+                    tbody.innerHTML = '';
+                    
+                    data.data.forEach(person => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${person.profile.nombre}</td>
+                            <td>${person.email}</td>
+                            <td><span class="badge bg-secondary">${person.role}</span></td>
+                            <td>${person.profile.telefono}</td>
+                            <td>${person.profile.ubicacion.ciudad}, ${person.profile.ubicacion.distrito}</td>
+                            <td><span class="badge bg-${person.profile.disponible ? 'success' : 'warning'}">${person.profile.disponible ? 'Disponible' : 'No disponible'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="editUser('${person._id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${person._id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error cargando personal:', error);
+            }
+        }
+
+        // Funciones auxiliares
+        function getStatusColor(status) {
+            const colors = {
+                'activo': 'danger',
+                'asignado': 'warning',
+                'en_proceso': 'info',
+                'resuelto': 'success',
+                'cancelado': 'secondary'
+            };
+            return colors[status] || 'secondary';
+        }
+
+        function getPriorityColor(priority) {
+            const colors = {
+                'baja': 'success',
+                'media': 'warning',
+                'alta': 'danger',
+                'critica': 'dark'
+            };
+            return colors[priority] || 'secondary';
+        }
+
+        // Mostrar modal para crear usuario
+        function showCreateUserModal() {
+            const modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+            modal.show();
+        }
+
+        // Manejar cambio de rol para mostrar campos profesionales
+        document.getElementById('newRole').addEventListener('change', function() {
+            const professionalFields = document.getElementById('professionalFields');
+            const role = this.value;
+            
+            if (role === 'policia' || role === 'bombero' || role === 'paramedico') {
+                professionalFields.style.display = 'block';
+            } else {
+                professionalFields.style.display = 'none';
+            }
+        });
+
+        // Crear usuario
+        async function createUser() {
+            const formData = {
+                username: document.getElementById('newUsername').value,
+                email: document.getElementById('newEmail').value,
+                password: document.getElementById('newPassword').value,
+                role: document.getElementById('newRole').value,
+                profile: {
+                    nombre: document.getElementById('newFullName').value,
+                    telefono: document.getElementById('newPhone').value,
+                    ubicacion: {
+                        ciudad: document.getElementById('newCity').value,
+                        distrito: document.getElementById('newDistrict').value
+                    }
+                }
+            };
+
+            // Agregar campos profesionales si es necesario
+            if (formData.role === 'policia' || formData.role === 'bombero' || formData.role === 'paramedico') {
+                formData.profile.badge = document.getElementById('newBadge').value;
+                formData.profile.departamento = document.getElementById('newDepartment').value;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Usuario creado exitosamente', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('createUserModal')).hide();
+                    document.getElementById('createUserForm').reset();
+                    await loadPersonnel();
+                } else {
+                    showAlert(data.message || 'Error al crear usuario', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        // Funciones placeholder para otras acciones
+        function viewEmergency(id) {
+            showAlert('Función de ver emergencia en desarrollo', 'info');
+        }
+
+        function editUser(id) {
+            showAlert('Función de editar usuario en desarrollo', 'info');
+        }
+
+        function deleteUser(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+                showAlert('Función de eliminar usuario en desarrollo', 'info');
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        // Actualizar datos cada 30 segundos
+        setInterval(async () => {
+            await loadDashboardData();
+            await loadEmergencies();
+        }, 30000);
+    </script>
+</body>
+</html>

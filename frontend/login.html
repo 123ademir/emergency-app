@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Emergencias - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(26, 26, 46, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 100%;
+            max-width: 520px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo i {
+            font-size: 4.5rem;
+            background: linear-gradient(135deg, #e94560, #1a1a2e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .logo h1 {
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .logo p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+        
+        .form-control {
+            border-radius: 15px;
+            padding: 18px 25px;
+            border: 2px solid rgba(26, 26, 46, 0.1);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #e94560;
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.15);
+            outline: none;
+        }
+
+        .form-label {
+            color: #1a1a2e;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #e94560, #1a1a2e);
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn-anonymous {
+            background: linear-gradient(135deg, #16213e, #0f3460);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        
+        .btn-anonymous:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(22, 33, 62, 0.4);
+        }
+        
+        .toggle-form {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(26, 26, 46, 0.1);
+        }
+        
+        .toggle-form a {
+            color: #e94560;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-form a:hover {
+            color: #1a1a2e;
+            text-decoration: underline;
+        }
+        
+        .role-selection {
+            margin-bottom: 30px;
+        }
+        
+        .role-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(26, 26, 46, 0.1);
+            padding: 20px 15px;
+            border-radius: 15px;
+            margin: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .role-btn:hover {
+            border-color: #e94560;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+        
+        .role-btn.active {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .role-btn i {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #1a1a2e;
+            display: block;
+        }
+
+        .role-btn small {
+            color: #1a1a2e;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .alert {
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: none;
+            padding: 15px 20px;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border-left: 4px solid #27ae60;
+        }
+
+        .alert-info {
+            background: rgba(233, 69, 96, 0.1);
+            color: #e94560;
+            border-left: 4px solid #e94560;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(26, 26, 46, 0.1), transparent);
+        }
+        
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .emergency-tip {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .emergency-tip i {
+            color: #e74c3c;
+            font-size: 1.3rem;
+            margin-right: 10px;
+        }
+        
+        .emergency-tip strong {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
+        .demo-credentials {
+            background: rgba(233, 69, 96, 0.05);
+            border: 1px solid rgba(233, 69, 96, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .demo-credentials h5 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+        }
+
+        .demo-credentials p {
+            margin-bottom: 10px;
+            color: #1a1a2e;
+        }
+
+        .demo-credentials strong {
+            color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="login-container">
+                    <div class="logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <h1>Sistema de Emergencias</h1>
+                        <p>Acceso seguro al sistema</p>
+                    </div>
+                    
+                    <div id="alertContainer"></div>
+                    
+                    <!-- Login Form -->
+                    <form id="loginForm" style="display: block;">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-login">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                        </button>
+                        
+                        <div class="divider">
+                            <span>o</span>
+                        </div>
+                        
+                        <button type="button" class="btn btn-anonymous" onclick="accessAnonymous()">
+                            <i class="fas fa-user-secret"></i> Acceso Anónimo
+                        </button>
+                    </form>
+                    
+                    <!-- Register Form -->
+                    <form id="registerForm" style="display: none;">
+                        <div class="role-selection">
+                            <label class="form-label">Tipo de Usuario</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="role-btn" onclick="selectRole('ciudadano')">
+                                        <i class="fas fa-user"></i><br>
+                                        <small>Ciudadano</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="role-btn" onclick="selectRole('administrador')">
+                                        <i class="fas fa-user-shield"></i><br>
+                                        <small>Administrador</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" id="selectedRole" name="role">
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="registerUsername" class="form-label">Usuario</label>
+                                    <input type="text" class="form-control" id="registerUsername" required>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="registerEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="registerEmail" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="registerPassword" required minlength="6">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="registerName" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="registerName" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="registerPhone" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="registerPhone" required>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="registerCity" class="form-label">Ciudad</label>
+                                    <input type="text" class="form-control" id="registerCity" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="registerDistrict" class="form-label">Distrito</label>
+                            <input type="text" class="form-control" id="registerDistrict" required>
+                        </div>
+                        
+                        <div id="professionalFields" style="display: none;">
+                            <div class="mb-3">
+                                <label for="registerBadge" class="form-label">Código de Administrador</label>
+                                <input type="text" class="form-control" id="registerBadge" placeholder="ADMIN2024">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-login">
+                            <i class="fas fa-user-plus"></i> Registrarse
+                        </button>
+                    </form>
+                    
+                    <div class="toggle-form">
+                        <span id="toggleText">¿No tienes cuenta? </span>
+                        <a href="#" id="toggleLink" onclick="toggleForm()">Regístrate aquí</a>
+                    </div>
+                    
+                    <div class="emergency-tip">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Emergencia Real:</strong> Llama al 911 o 105 inmediatamente
+                    </div>
+
+                    <!-- Credenciales de demostración -->
+                    <div class="demo-credentials">
+                        <h5>
+                            <i class="fas fa-key" style="color: #e94560;"></i>
+                            Credenciales de Demostración
+                        </h5>
+                        <div class="row">
+                            <div class="col-6">
+                                <p><strong>Admin:</strong><br>admin@emergencias.com<br>admin123</p>
+                                <p><strong>Ciudadano:</strong><br>ciudadano@emergencias.com<br>ciudadano123</p>
+                            </div>
+                            <div class="col-6">
+                                <p><strong>Policía:</strong><br>policia@emergencias.com<br>policia123</p>
+                                <p><strong>Bombero:</strong><br>bombero@emergencias.com<br>bombero123</p>
+                            </div>
+                        </div>
+                        <p style="margin-bottom: 0;"><strong>Paramédico:</strong><br>paramedico@emergencias.com<br>paramedico123</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoginForm = true;
+        let selectedRole = null;
+        
+        function toggleForm() {
+            event.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const toggleText = document.getElementById('toggleText');
+            const toggleLink = document.getElementById('toggleLink');
+            
+            if (isLoginForm) {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                toggleText.textContent = '¿Ya tienes cuenta? ';
+                toggleLink.textContent = 'Inicia sesión aquí';
+                isLoginForm = false;
+            } else {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                toggleText.textContent = '¿No tienes cuenta? ';
+                toggleLink.textContent = 'Regístrate aquí';
+                isLoginForm = true;
+            }
+        }
+        
+        function selectRole(role) {
+            event.preventDefault();
+            selectedRole = role;
+            document.getElementById('selectedRole').value = role;
+            
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.role-btn').classList.add('active');
+            
+            const professionalFields = document.getElementById('professionalFields');
+            if (role === 'administrador') {
+                professionalFields.style.display = 'block';
+            } else {
+                professionalFields.style.display = 'none';
+            }
+        }
+        
+        function accessAnonymous() {
+            localStorage.setItem('accessMode', 'anonymous');
+            window.location.href = '/ciudadano';
+        }
+        
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            
+            // Limpiar alertas previas
+            alertContainer.innerHTML = '';
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type}`;
+            alertDiv.innerHTML = message;
+            alertContainer.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+        
+        // Login form submit - SIN BUCLES NI PROBLEMAS
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showAlert('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    showAlert('¡Login exitoso! Redirigiendo...', 'success');
+                    
+                    // Redirigir después de 1 segundo
+                    setTimeout(() => {
+                        switch (data.user.role) {
+                            case 'ciudadano':
+                                window.location.href = '/ciudadano';
+                                break;
+                            case 'policia':
+                            case 'bombero':
+                            case 'paramedico':
+                                window.location.href = '/personal';
+                                break;
+                            case 'administrador':
+                                window.location.href = '/admin';
+                                break;
+                            default:
+                                window.location.href = '/ciudadano';
+                        }
+                    }, 1000);
+                } else {
+                    showAlert(data.message || 'Credenciales inválidas', 'error');
+                }
+            } catch (error) {
+                console.error('Error en login:', error);
+                showAlert('Error de conexión. Verifica que el servidor esté funcionando.', 'error');
+            }
+        });
+        
+        // Register form submit - FUNCIONAL
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!selectedRole) {
+                showAlert('Por favor selecciona un tipo de usuario', 'error');
+                return;
+            }
+            
+            const formData = {
+                username: document.getElementById('registerUsername').value,
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value,
+                role: selectedRole,
+                profile: {
+                    nombre: document.getElementById('registerName').value,
+                    telefono: document.getElementById('registerPhone').value,
+                    ubicacion: {
+                        ciudad: document.getElementById('registerCity').value,
+                        distrito: document.getElementById('registerDistrict').value
+                    }
+                }
+            };
+            
+            // Validar campos requeridos
+            if (!formData.username || !formData.email || !formData.password || !formData.profile.nombre) {
+                showAlert('Por favor completa todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            // Validar código de administrador
+            if (selectedRole === 'administrador') {
+                const adminCode = document.getElementById('registerBadge').value;
+                if (adminCode !== 'ADMIN2024') {
+                    showAlert('Código de administrador incorrecto', 'error');
+                    return;
+                }
+                formData.profile.badge = adminCode;
+                formData.profile.departamento = 'Administración';
+            }
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('¡Registro exitoso! Ahora puedes iniciar sesión.', 'success');
+                    
+                    // Limpiar formulario
+                    document.getElementById('registerForm').reset();
+                    selectedRole = null;
+                    document.querySelectorAll('.role-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    document.getElementById('professionalFields').style.display = 'none';
+                    
+                    // Cambiar a formulario de login
+                    setTimeout(() => {
+                        toggleForm();
+                    }, 1500);
+                } else {
+                    showAlert(data.message || 'Error al registrarse', 'error');
+                }
+            } catch (error) {
+                console.error('Error en registro:', error);
+                showAlert('Error de conexión. Verifica que el servidor esté funcionando.', 'error');
+            }
+        });
+        
+        // SIN VERIFICACIÓN AUTOMÁTICA - NO MÁS BUCLES
+        // Solo funcionalidad básica de login
+        console.log('Sistema de login cargado correctamente');
+    </script>
+</body>
+</html>
